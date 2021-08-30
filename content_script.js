@@ -1,3 +1,5 @@
+import {generateFragment} from './fragment-generation-utils';
+
 /**
  * Copyright 2020 Google LLC
  *
@@ -14,7 +16,7 @@
  * limitations under the License.
  */
 ((browser) => {
-  let DEBUG = false;
+  let DEBUG = true;
 
   const log = (...args) => {
     if (DEBUG) {
@@ -24,8 +26,7 @@
 
   const createTextFragment = (sendResponse) => {
     const selection = window.getSelection();
-    // eslint-disable-next-line no-undef
-    const result = exports.generateFragment(selection);
+    const result = generateFragment(selection);
     let url = `${location.origin}${location.pathname}${location.search}`;
     if (result.status === 0) {
       const fragment = result.fragment;
@@ -51,11 +52,9 @@
     const style = document.createElement('style');
     document.head.append(style);
     const sheet = style.sheet;
-    sheet.insertRule(`
-      ::selection {
-        color: #000 !important;
-        background-color: #ffff00 !important;
-      }`);
+    sheet.insertRule(
+        ' ::selection { color: #000 !important; background-color: #ffff00 !important; }',
+    );
     // Need to force re-selection for the CSS to have an effect in Safari.
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
@@ -67,11 +66,12 @@
 
   const reportFailure = () => {
     window.queueMicrotask(() => {
-      alert(
-          `🛑 ${browser.i18n.getMessage(
-              'extension_name',
-          )}:\n${browser.i18n.getMessage('link_failure')}`,
-      );
+      // TODO: yeah idk put this back in?
+      // alert(
+      //     `🛑 ${browser.i18n.getMessage(
+      //         'extension_name',
+      //     )}:\n${browser.i18n.getMessage('link_failure')}`,
+      // );
     });
     return true;
   };
