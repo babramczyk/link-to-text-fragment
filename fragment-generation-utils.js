@@ -745,7 +745,6 @@ const setTimeout = (newTimeoutDurationMs) => {
  * Enum indicating the success, or failure reason, of generateFragment.
  */
 
-exports.setTimeout = setTimeout;
 const GenerateFragmentStatus = {
   SUCCESS: 0,
   // A fragment was generated.
@@ -771,9 +770,8 @@ const GenerateFragmentStatus = {
  * @return {GenerateFragmentResult}
  */
 
-exports.GenerateFragmentStatus = GenerateFragmentStatus;
 
-const generateFragment = (selection, startTime = Date.now()) => {
+export const generateFragment = (selection, startTime = Date.now()) => {
   try {
     return doGenerateFragment(selection, startTime);
   } catch (err) {
@@ -792,7 +790,6 @@ const generateFragment = (selection, startTime = Date.now()) => {
  * @return {boolean} - true if fragment generation may proceed; false otherwise.
  */
 
-exports.generateFragment = generateFragment;
 
 const isValidRangeForFragmentGeneration = (range) => {
   // Check that the range isn't just punctuation and whitespace. Only check the
@@ -857,7 +854,6 @@ const isValidRangeForFragmentGeneration = (range) => {
  *     timeout length.
  */
 
-exports.isValidRangeForFragmentGeneration = isValidRangeForFragmentGeneration;
 
 const doGenerateFragment = (selection, startTime) => {
   recordStartTime(startTime);
@@ -1914,7 +1910,6 @@ const forTesting = {
 }; // Allow importing module from closure-compiler projects that haven't migrated
 // to ES6 modules.
 
-exports.forTesting = forTesting;
 
 if (typeof goog !== 'undefined') {
   // clang-format off

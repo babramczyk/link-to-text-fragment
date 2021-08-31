@@ -1,4 +1,4 @@
-import {generateFragment} from './fragment-generation-utils';
+import { generateFragment } from './fragment-generation-utils';
 
 /**
  * Copyright 2020 Google LLC
@@ -16,6 +16,8 @@ import {generateFragment} from './fragment-generation-utils';
  * limitations under the License.
  */
 ((browser) => {
+  console.log({ browser: browser });
+  console.log({ chrome: chrome });
   let DEBUG = true;
 
   const log = (...args) => {
@@ -30,16 +32,16 @@ import {generateFragment} from './fragment-generation-utils';
     let url = `${location.origin}${location.pathname}${location.search}`;
     if (result.status === 0) {
       const fragment = result.fragment;
-      const prefix = fragment.prefix ?
-        `${encodeURIComponent(fragment.prefix)}-,` :
-        '';
-      const suffix = fragment.suffix ?
-        `,-${encodeURIComponent(fragment.suffix)}` :
-        '';
+      const prefix = fragment.prefix
+        ? `${encodeURIComponent(fragment.prefix)}-,`
+        : '';
+      const suffix = fragment.suffix
+        ? `,-${encodeURIComponent(fragment.suffix)}`
+        : '';
       const textStart = encodeURIComponent(fragment.textStart);
-      const textEnd = fragment.textEnd ?
-        `,${encodeURIComponent(fragment.textEnd)}` :
-        '';
+      const textEnd = fragment.textEnd
+        ? `,${encodeURIComponent(fragment.textEnd)}`
+        : '';
       url = `${url}#:~:text=${prefix}${textStart}${textEnd}${suffix}`;
       copyToClipboard(url, selection.toString());
       reportSuccess();
@@ -53,7 +55,7 @@ import {generateFragment} from './fragment-generation-utils';
     document.head.append(style);
     const sheet = style.sheet;
     sheet.insertRule(
-        ' ::selection { color: #000 !important; background-color: #ffff00 !important; }',
+      ' ::selection { color: #000 !important; background-color: #ffff00 !important; }'
     );
     // Need to force re-selection for the CSS to have an effect in Safari.
     const selection = window.getSelection();
@@ -76,66 +78,72 @@ import {generateFragment} from './fragment-generation-utils';
     return true;
   };
 
-  const copyToClipboard = (url, selectedText) => {
-    browser.storage.sync.get({linkStyle: 'rich'}, async (items) => {
-      const linkStyle = items.linkStyle;
-      // Try to use the Async Clipboard API with fallback to the legacy API.
-      try {
-        const {state} = await navigator.permissions.query({
-          name: 'clipboard-write',
-        });
-        if (state !== 'granted') {
-          throw new Error('Clipboard permission not granted');
-        }
-        const clipboardItems = {
-          'text/plain': new Blob([url], {type: 'text/plain'}),
-        };
-        if (linkStyle === 'rich') {
-          clipboardItems['text/html'] = new Blob(
-              [`<a href="${url}">${selectedText}</a>`],
-              {
-                type: 'text/html',
-              },
-          );
-          // ToDo: Activate once supported.
-          /*
-          clipboardItems['text/rtf'] = new Blob(
-            [
-              `{\field{\*\fldinst HYPERLINK "${url}"}{\fldrslt ${
-                  selectedText}}}`,
-            ],
-            {
-              type: 'text/rtf',
-            }
-          );
-          */
-        }
-        const clipboardData = [new ClipboardItem(clipboardItems)];
-        /* global ClipboardItem */
-        await navigator.clipboard.write(clipboardData);
-      } catch (err) {
-        console.warn(err.name, err.message);
-        const textArea = document.createElement('textarea');
-        document.body.append(textArea);
-        textArea.textContent = url;
-        textArea.select();
-        document.execCommand('copy');
-        textArea.remove();
+  const copyToClipboard = async (url, selectedText) => {
+    // Brett: Instead of using the extension's setting for "rich text link" or "raw URL", we just hardcode it (since we don't have access to the extension's settings)
+    // See options.js for details
+    const linkStyle = 'rich';
+    // const linkStyle = "raw"
+    // browser.storage.sync.get({ linkStyle: 'rich' }, async (items) => {
+    // const linkStyle = items.linkStyle;
+    // Try to use the Async Clipboard API with fallback to the legacy API.
+    try {
+      const { state } = await navigator.permissions.query({
+        name: 'clipboard-write',
+      });
+      if (state !== 'granted') {
+        throw new Error('Clipboard permission not granted');
       }
-      log('🎉', url);
-      return true;
-    });
+      const clipboardItems = {
+        'text/plain': new Blob([url], { type: 'text/plain' }),
+      };
+      if (linkStyle === 'rich') {
+        clipboardItems['text/html'] = new Blob(
+          [`<a href="${url}">${selectedText}</a>`],
+          {
+            type: 'text/html',
+          }
+        );
+        //   // ToDo: Activate once supported.
+        //   /*
+        //   clipboardItems['text/rtf'] = new Blob(
+        //     [
+        //       `{\field{\*\fldinst HYPERLINK "${url}"}{\fldrslt ${
+        //           selectedText}}}`,
+        //     ],
+        //     {
+        //       type: 'text/rtf',
+        //     }
+        //   );
+        //   */
+      }
+      const clipboardData = [new ClipboardItem(clipboardItems)];
+      /* global ClipboardItem */
+      await navigator.clipboard.write(clipboardData);
+    } catch (err) {
+      console.warn(err.name, err.message);
+      const textArea = document.createElement('textarea');
+      document.body.append(textArea);
+      textArea.textContent = url;
+      textArea.select();
+      document.execCommand('copy');
+      textArea.remove();
+    }
+    log('🎉', url);
+    return true;
+    // });
   };
 
-  browser.runtime.onMessage.addListener((request, _, sendResponse) => {
-    const message = request.message;
-    if (message === 'create-text-fragment') {
-      return sendResponse(createTextFragment());
-    } else if (message === 'debug') {
-      return sendResponse((DEBUG = request.data) || true);
-    } else if (message === 'ping') {
-      return sendResponse('pong');
-    }
-  });
+  createTextFragment();
+
+  // browser.runtime.onMessage.addListener((request, _, sendResponse) => {
+  //   const message = request.message;
+  //   if (message === 'create-text-fragment') {
+  //     return sendResponse(createTextFragment());
+  //   } else if (message === 'debug') {
+  //     return sendResponse((DEBUG = request.data) || true);
+  //   } else if (message === 'ping') {
+  //     return sendResponse('pong');
+  //   }
+  // });
   // eslint-disable-next-line no-undef
 })(chrome || browser);
