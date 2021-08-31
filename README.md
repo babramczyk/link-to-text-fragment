@@ -1,57 +1,21 @@
-# Link to Text Fragment
+# Link to Text Fragment (Fork)
 
-- 📖 Article: https://web.dev/text-fragments/
-- 🧩 Extension: https://chrome.google.com/webstore/detail/link-to-text-fragment/pbcodcjpfjdpcineamnnmbkkmkdpajjg
-- 🎬 Demo video: https://www.youtube.com/watch?v=Y5DmGqnzvBI
+This repo is a fork of [one from Google](https://github.com/GoogleChromeLabs/link-to-text-fragment) that generates [Text Fragment links](https://wicg.github.io/ScrollToTextFragment/) based on the current selection in a webpage.
 
-## Installation
+## Why?
 
-You can install the extension in your browser of choice:
+When taking notes in [my](https://github.com/babramczyk/wiki) [wiki](https://wiki.abramczyk.dev), I typically do so by highlighting text on a webpage to append it to my register. When done researching, I'll dump the clipboard into a wiki page, and organize if I think I need to.
 
-- Google Chrome: [Link to Text Fragment extension](https://chrome.google.com/webstore/detail/link-to-text-fragment/pbcodcjpfjdpcineamnnmbkkmkdpajjg)
-- Microsoft Edge: [Link to Text Fragment extension](https://microsoftedge.microsoft.com/addons/detail/link-to-text-fragment/pmdldpbcbobaamgkpkghjigngamlolag)
-- Mozilla Firefox: [Link to Text Fragment extension](https://addons.mozilla.org/firefox/addon/link-to-text-fragment/)
-- Apple Safari: [Link to Text Fragment extension](https://apps.apple.com/app/link-to-text-fragment/id1532224396?l=en&mt=12)
+But I do more than just copy -- I also include a `source` link at the end of each copied note, so that I can remember where I read something. Those links are _much_ more useful if they point right to the text on the page. Luckily, the Text Fragment spec was implemented by Chrome recently, so I leverage that.
 
-## Usage
+For a while, I generated this by running some custom JXA code in an Alfred workflow. Unfortunately, my custom logic was not nearly as sophisticated as Google's was, and was broken in some cases; so I needed a way to execute the JavaScript their Chrome extension was running, from my Alfred workflow (which basically meant from AppleScript).
 
-The Link to Text Fragment extension allows for the easy creation
-of text fragment URLs via the context menu:
+So, long story short, I forked the repo, made some tweaks where necessary, bundled it into a one-liner with [esbuild](https://github.com/evanw/esbuild#readme), then ran it from AppleScript like this:
 
-1. Select the text that you want to link to.
-1. Right-click and choose "Copy Link to Selected Text" from the context menu.
-1. If the link creation succeeded, the selected text will be briefly highlighted in yellow.
-1. Paste your link wherever you want to share it.
-
-![Text fragment selected on a webpage and contextmenu showing "Copy Link to Selected Text"](https://github.com/GoogleChromeLabs/link-to-text-fragment/blob/main/store-assets/screenshot-contextmenu-1280x800.png?raw=true)
-
-## Background
-
-The [Text Fragments specification](https://wicg.github.io/ScrollToTextFragment/)
-adds support for specifying a text snippet in the URL fragment.
-
-```
-#:~:text=[prefix-,]textStart[,textEnd][,-suffix]
+```AppleScript
+activeTab.execute({
+  javascript: 'script_here',
+});
 ```
 
-When navigating to a URL with such a fragment, the user agent can quickly
-emphasize and/or bring it to the user's attention.
-
-Try it out by clicking on this link:
-https://wicg.github.io/scroll-to-text-fragment/#ref-for-fragment-directive:~:text=%23%3A~%3Atext%3D%5Bprefix%2D%2C%5DtextStart%5B%2CtextEnd%5D%5B%2C%2Dsuffix%5D.
-
-## Acknowledgements
-
-Text Fragments was implemented and specified by
-[Nick Burris](https://github.com/nickburris)
-and [David Bokan](https://github.com/bokand),
-with contributions from [Grant Wang](https://github.com/grantjwang).
-The extension icon is courtesy of [Rombout Versluijs](https://twitter.com/romboutv).
-
-## License
-
-The extension's source code is licensed under the terms of the Apache 2.0 license.
-
-This is not an official Google product.
-By installing this item, you agree to the Google Terms of Service and Privacy Policy at
-https://www.google.com/intl/en/policies/.
+Now, I can even more easily capture memories when researching, and go _exactly_ to where the memory came from. For me, that's been _**incredibly**_ powerful.
